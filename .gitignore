@@ -1,0 +1,10 @@
+/.vscode
+
+
+server/.vscode/
+server/bin/
+server/obj/
+server/wireframes/
+server/appsettings.json
+
+server/readme-prompt.md
