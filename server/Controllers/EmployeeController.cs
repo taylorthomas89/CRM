@@ -47,7 +47,6 @@ namespace CRM
             _context.Employee.Add(employee);
             _context.SaveChanges();
             
-            // return Ok(_context.Employee.ToList());
             return CreatedAtRoute("GetEmployee", new { id = employee.employee_id}, employee);
         }
 
@@ -63,7 +62,6 @@ namespace CRM
             _context.Employee.Update(employee);
             _context.SaveChanges();
             return NoContent();
-            // return Ok(employee);
         }
 
         [HttpDelete("{id}")]
@@ -78,7 +76,6 @@ namespace CRM
             _context.Employee.Remove(employee);
             _context.SaveChanges();
             return NoContent();
-            // return Ok(_context.Employee.ToList());
         }
     }
 }

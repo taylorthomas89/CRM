@@ -19,30 +19,22 @@ namespace CRM
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public List<Customer> Get()
         {
-            if (_context.Customer.ToList().Count == 0)
-            {
-                return Ok("No customers found.");
-            }
-            else 
-            {
-                return Ok(_context.Customer.Include(c => c.details).ToList());
-            }
+            return _context.Customer.Include(c => c.details).ToList();
         }
 
         [HttpGet("{id}", Name = "GetCustomer")]
         public async Task<IActionResult> Get(int? id)
         {   
-
             if (id == null)
             {
                 return NotFound();
             }
 
             Customer customer = await _context.Customer
-                                    .Include(c => c.details)
-                                    .SingleOrDefaultAsync(c => c.customer_id == id);
+                                        .Include(c => c.details)
+                                        .SingleOrDefaultAsync(c => c.customer_id == id);
 
             if (customer == null)
             {
@@ -54,7 +46,7 @@ namespace CRM
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Customer customer)
+        public async Task<IActionResult> Post([FromBody] Customer customer)
         {
             if (customer == null)
             {
@@ -63,10 +55,21 @@ namespace CRM
 
             _context.Customer.Add(customer);
             _context.SaveChanges();
-            // return Ok(_context.Customer.Include(c => c.details).ToList());
-            return CreatedAtRoute("GetCustomer", new {id = customer.customer_id }, customer);
-        }
 
+            // Grab the newly created customer such that can return below in "CreatedAtRoute"
+            Customer newCustomer = await _context.Customer
+                                .Include(c => c.details)
+                                .SingleOrDefaultAsync(c => c.customer_id == customer.customer_id);
+            
+            if (newCustomer == null)
+            {
+                return BadRequest();
+            }
+
+            return CreatedAtRoute("GetCustomer", new {id = customer.customer_id }, newCustomer);
+        }
+        
+        [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] Customer customer)
         {
             if (customer == null || customer.customer_id != id)
@@ -77,7 +80,6 @@ namespace CRM
             _context.Customer.Update(customer);
             _context.SaveChanges();
             return NoContent();
-            // return Ok(customer);
         }
 
         [HttpDelete("{id}")]
@@ -92,7 +94,6 @@ namespace CRM
             _context.Customer.Remove(customer);
             _context.SaveChanges();
             return NoContent();
-            // return Ok(_context.Customer.Include(c => c.details).ToList());
         }
     }
 }
