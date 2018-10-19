@@ -18,16 +18,39 @@ namespace CRM
         }
 
         [HttpGet]
-        public List<Employee> GetAll()
+        public IQueryable<EmployeeDTO> GetAll()
         {
-            return _context.Employee.ToList();
+            IQueryable<EmployeeDTO> employees = from e in _context.Employee
+                select new EmployeeDTO()
+                {
+                    Id = e.employee_id,
+                    Name = e.name,
+                    Email = e.email,
+                    Phone = e.phone
+                };
+
+                return employees;
         }
 
         [HttpGet("{id}", Name = "GetEmployee")]
         public IActionResult GetById(int? id)
         {  
-            
-            Employee employee = _context.Employee.Find(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            EmployeeDTO employee =  _context.Employee
+                                        .Select(e =>
+                                            new EmployeeDTO()
+                                            {
+                                                Id = e.employee_id,
+                                                Name = e.name,
+                                                Email = e.email,
+                                                Phone = e.phone
+                                            }    
+                                        )
+                                        .SingleOrDefault(e => e.Id == id);
             if (employee == null)
             {
                 return NotFound();
@@ -37,7 +60,7 @@ namespace CRM
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Employee employee)
+        public async Task<IActionResult> Post([FromBody] Employee employee)
         {
             if (employee == null)
             {
@@ -45,9 +68,17 @@ namespace CRM
             }
 
             _context.Employee.Add(employee);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+
+            EmployeeDTO employeeDto = new EmployeeDTO()
+                                {
+                                    Id = employee.employee_id,
+                                    Name = employee.name,
+                                    Email = employee.email,
+                                    Phone = employee.phone
+                                };
             
-            return CreatedAtRoute("GetEmployee", new { id = employee.employee_id}, employee);
+            return CreatedAtRoute("GetEmployee", new { id = employee.employee_id}, employeeDto);
         }
 
         [HttpPut("{id}")]
