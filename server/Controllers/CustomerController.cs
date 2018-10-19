@@ -19,9 +19,21 @@ namespace CRM
         }
 
         [HttpGet]
-        public List<Customer> Get()
+        public IQueryable<CustomerDTO> Get()
         {
-            return _context.Customer.Include(c => c.details).ToList();
+            IQueryable<CustomerDTO> customers = from c in _context.Customer
+                    select new CustomerDTO()
+                    {
+                        Id = c.customer_id,
+                        Name = c.name,
+                        Email = c.email,
+                        Phone = c.phone,
+                        Age = c.age,
+                        Details = c.details
+                    };
+            
+            return customers;
+             
         }
 
         [HttpGet("{id}", Name = "GetCustomer")]
@@ -32,9 +44,20 @@ namespace CRM
                 return NotFound();
             }
 
-            Customer customer = await _context.Customer
+            CustomerDTO customer = await _context.Customer
                                         .Include(c => c.details)
-                                        .SingleOrDefaultAsync(c => c.customer_id == id);
+                                        .Select(c =>
+                                            new CustomerDTO()
+                                            {
+                                                Id = c.customer_id,
+                                                Name = c.name,
+                                                Email = c.email,
+                                                Phone = c.phone,
+                                                Age = c.age,
+                                                Details = c.details
+                                            }
+                                        )
+                                        .SingleOrDefaultAsync(c => c.Id == id);
 
             if (customer == null)
             {
@@ -42,7 +65,6 @@ namespace CRM
             }
 
             return Ok(customer);
-
         }
 
         [HttpPost]
@@ -54,19 +76,20 @@ namespace CRM
             }
 
             _context.Customer.Add(customer);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            // Grab the newly created customer such that can return below in "CreatedAtRoute"
-            Customer newCustomer = await _context.Customer
-                                .Include(c => c.details)
-                                .SingleOrDefaultAsync(c => c.customer_id == customer.customer_id);
-            
-            if (newCustomer == null)
-            {
-                return BadRequest();
-            }
+            _context.Entry(customer).Reference(c => c.details).Load();
+            CustomerDTO dto = new CustomerDTO()
+                                {
+                                    Id = customer.customer_id,
+                                    Name = customer.name,
+                                    Email = customer.email,
+                                    Phone = customer.phone,
+                                    Age = customer.age,
+                                    Details = customer.details
+                                };
 
-            return CreatedAtRoute("GetCustomer", new {id = customer.customer_id }, newCustomer);
+            return CreatedAtRoute("GetCustomer", new { id = customer.customer_id}, dto);
         }
         
         [HttpPut("{id}")]
