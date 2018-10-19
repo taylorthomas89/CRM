@@ -8,3 +8,6 @@ server/wireframes/
 server/appsettings.json
 
 server/readme-prompt.md
+
+client/node_modules/
+client/README.md
