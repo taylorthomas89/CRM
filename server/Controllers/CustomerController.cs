@@ -78,8 +78,11 @@ namespace CRM
             _context.Customer.Add(customer);
             await _context.SaveChangesAsync();
 
+            // This loads the nested details object onto the customer object, without it customer.details is null
             _context.Entry(customer).Reference(c => c.details).Load();
-            CustomerDTO dto = new CustomerDTO()
+
+            // Creates the dto to send back as the response (the newly created customers object)
+            CustomerDTO customerDto = new CustomerDTO()
                                 {
                                     Id = customer.customer_id,
                                     Name = customer.name,
@@ -89,7 +92,7 @@ namespace CRM
                                     Details = customer.details
                                 };
 
-            return CreatedAtRoute("GetCustomer", new { id = customer.customer_id}, dto);
+            return CreatedAtRoute("GetCustomer", new { id = customer.customer_id}, customerDto);
         }
         
         [HttpPut("{id}")]
