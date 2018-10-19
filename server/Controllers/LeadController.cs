@@ -20,15 +20,20 @@ namespace CRM
         }
 
         [HttpGet]
-        public List<Lead> Get()
+        public IQueryable<LeadDTO> Get()
         {
-            return _context.Lead
-                    .Include(l => l.status)
-                    .Include(l => l.priority)
-                    .Include(l => l.customer)
-                    .Include(l => l.customer.details)
-                    .Include(l => l.employee)
-                    .ToList();
+            IQueryable<LeadDTO> leads = from l in _context.Lead
+                select new LeadDTO()
+                {
+                    Id = l.lead_id,
+                    LastContact = l.last_contact,
+                    Status = l.status,
+                    Priority = l.priority,
+                    Customer = l.customer,
+                    Employee = l.employee
+                };
+
+            return leads;
         }
 
         [HttpGet("{id}", Name = "GetLead")]
@@ -40,14 +45,26 @@ namespace CRM
                 return NotFound();
             }
 
-            Lead lead = await _context.Lead
+            LeadDTO lead = await _context.Lead
                                 .Include(l => l.status)
                                 .Include(l => l.priority)
                                 .Include(l => l.customer)
                                 .Include(l => l.customer.details)
                                 .Include(l => l.employee)
-                                .FirstOrDefaultAsync(l => l.lead_id == id);
-            
+                                .Select(l =>
+                                    new LeadDTO()
+                                    {
+                                        Id = l.lead_id,
+                                        LastContact = l.last_contact,
+                                        Status = l.status,
+                                        Priority = l.priority,
+                                        Customer = l.customer,
+                                        Employee = l.employee
+
+                                    }
+                                )
+                                .SingleOrDefaultAsync(l => l.Id == id);
+
             if (lead == null)
             {
                 return NotFound();
@@ -66,21 +83,25 @@ namespace CRM
             }
 
             _context.Lead.Add(lead);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            // Grab the newly created lead such that can return below in "CreatedAtRoute"
-            Lead newLead = await _context.Lead
-                                .Include(l => l.status)
-                                .Include(l => l.priority)
-                                .Include(l => l.customer)
-                                .Include(l => l.customer.details)
-                                .Include(l => l.employee)
-                                .FirstOrDefaultAsync(l => l.lead_id == lead.lead_id);
+            _context.Entry(lead).Reference(l => l.status).Load();
+            _context.Entry(lead).Reference(l => l.priority).Load();
+            _context.Entry(lead).Reference(l => l.customer).Load();
+            _context.Entry(lead).Reference(l => l.employee).Load();
 
-            return CreatedAtRoute("GetLead", new {id = lead.lead_id}, newLead);
+            LeadDTO leadDto = new LeadDTO()
+            {
+                Id = lead.lead_id,
+                LastContact = lead.last_contact,
+                Status = lead.status,
+                Priority = lead.priority,
+                Customer = lead.customer,
+                Employee = lead.employee
+            };
+
+            return CreatedAtRoute("GetLead", new {id = lead.lead_id}, leadDto);
         }
-
-
 
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] Lead lead)
