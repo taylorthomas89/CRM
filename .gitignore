@@ -13,6 +13,7 @@ client/node_modules/
 client/README.md
 
 client/.gitignore
+client/wireframes/
 
 # misc
 client/.DS_Store

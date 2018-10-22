@@ -29,6 +29,8 @@ namespace CRM
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
              var connectionString = Configuration.GetConnectionString("CRMContext");
             services.AddEntityFrameworkNpgsql().AddDbContext<CRMContext>(options => options.UseNpgsql(connectionString));
+
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,7 +45,12 @@ namespace CRM
                 app.UseHsts();
             }
 
-            app.UseMvc();
+            app.UseCors(builder =>
+                builder.WithOrigins("*")
+                    .AllowAnyHeader()
+            );
+
+            app.UseMvc(); 
         }
     }
 }
