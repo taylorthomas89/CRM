@@ -11,3 +11,19 @@ server/readme-prompt.md
 
 client/node_modules/
 client/README.md
+
+client/.gitignore
+
+# misc
+client/.DS_Store
+client/.env.local
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
+
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+
+# testing
+client/src/App.test.js
