@@ -15,12 +15,12 @@ class Customers extends Component {
 
     getCustomers() {
         axios.get("http://localhost:5000/api/customers")
-        .then((res) => {
-            console.log(res);
-            this.setState({
-            customers: res.data
+            .then((res) => {
+                console.log(res);
+                this.setState({
+                customers: res.data
+                });
             });
-        });
     }
 
     onSort(event, sortKey) {
