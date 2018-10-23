@@ -27,12 +27,16 @@ class Customers extends Component {
         const { customers } = this.state;
         const direction = this.state.sort.direction === 'asc' ? 'desc' : 'asc';
         const sortedData = customers.sort((a, b) => {
-            const nameA = a.name.toLowerCase();
-            const nameB = b.name.toLowerCase();
-            
-            if (nameA < nameB) return -1;
-            if (nameA > nameB) return 1;
-            return 0;
+            if (sortKey === 'name') {
+                const nameA = a.name.toLowerCase();
+                const nameB = b.name.toLowerCase();
+
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0; 
+            } else if (sortKey === 'id') {
+                return a.id - b.id;
+            }
         });
 
         if (direction === 'desc') sortedData.reverse();
@@ -40,9 +44,7 @@ class Customers extends Component {
             customers,
             sort: { direction }
         });
-
     }
-
 
     render() { 
         return (
@@ -51,7 +53,7 @@ class Customers extends Component {
                 <table className="table table-striped">
                     <thead>
                         <tr>
-                            <th scope="col">Id</th>
+                            <th scope="col" onClick={(e) => this.onSort(e, 'id')}>Id</th>
                             <th scopr="col" onClick={(e) => this.onSort(e, 'name')}>Name</th>
                             <th scopr="col">Age</th>
                             <th scopr="col">Phone</th>
