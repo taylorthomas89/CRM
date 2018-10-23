@@ -29,8 +29,22 @@ namespace CRM
                     LastContact = l.last_contact,
                     Status = l.status,
                     Priority = l.priority,
-                    Customer = l.customer,
-                    Employee = l.employee
+                    Customer =  new CustomerDTO()
+                                {
+                                    Id = l.customer.customer_id,
+                                    Name = l.customer.name,
+                                    Email = l.customer.email,
+                                    Phone = l.customer.phone,
+                                    Age = l.customer.age,
+                                    Details = l.customer.details
+                                },
+                    Employee = new EmployeeDTO()
+                                {
+                                    Id = l.employee.employee_id,
+                                    Name = l.employee.name,
+                                    Email = l.employee.email,
+                                    Phone = l.employee.phone
+                                }
                 };
 
             return leads;
@@ -49,7 +63,7 @@ namespace CRM
                                 .Include(l => l.status)
                                 .Include(l => l.priority)
                                 .Include(l => l.customer)
-                                .Include(l => l.customer.details)
+                                .Include(l => l.customer.details) // Details not being transferred with the DTO
                                 .Include(l => l.employee)
                                 .Select(l =>
                                     new LeadDTO()
@@ -58,9 +72,22 @@ namespace CRM
                                         LastContact = l.last_contact,
                                         Status = l.status,
                                         Priority = l.priority,
-                                        Customer = l.customer,
-                                        Employee = l.employee
-
+                                        Customer =  new CustomerDTO()
+                                        {
+                                            Id = l.customer.customer_id,
+                                            Name = l.customer.name,
+                                            Email = l.customer.email,
+                                            Phone = l.customer.phone,
+                                            Age = l.customer.age,
+                                            Details = l.customer.details
+                                        },
+                                        Employee = new EmployeeDTO()
+                                        {
+                                            Id = l.employee.employee_id,
+                                            Name = l.employee.name,
+                                            Email = l.employee.email,
+                                            Phone = l.employee.phone
+                                        }
                                     }
                                 )
                                 .SingleOrDefaultAsync(l => l.Id == id);
@@ -88,7 +115,8 @@ namespace CRM
             _context.Entry(lead).Reference(l => l.status).Load();
             _context.Entry(lead).Reference(l => l.priority).Load();
             _context.Entry(lead).Reference(l => l.customer).Load();
-            _context.Entry(lead).Reference(l => l.employee).Load();
+            // _context.Entry(lead).Reference(l => l.customer.details).Load(); <- figure this out, not working throws a 500
+             _context.Entry(lead).Reference(l => l.employee).Load();
 
             LeadDTO leadDto = new LeadDTO()
             {
@@ -96,8 +124,22 @@ namespace CRM
                 LastContact = lead.last_contact,
                 Status = lead.status,
                 Priority = lead.priority,
-                Customer = lead.customer,
-                Employee = lead.employee
+                Customer =  new CustomerDTO()
+                            {
+                                Id = lead.customer.customer_id,
+                                Name = lead.customer.name,
+                                Email = lead.customer.email,
+                                Phone = lead.customer.phone,
+                                Age = lead.customer.age,
+                                Details = lead.customer.details
+                            },
+                Employee = new EmployeeDTO()
+                            {
+                                Id = lead.employee.employee_id,
+                                Name = lead.employee.name,
+                                Email = lead.employee.email,
+                                Phone = lead.employee.phone
+                            }
             };
 
             return CreatedAtRoute("GetLead", new {id = lead.lead_id}, leadDto);
