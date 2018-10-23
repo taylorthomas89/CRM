@@ -81,7 +81,6 @@ namespace CRM
             // This loads the nested details object onto the customer object, without it customer.details is null
             _context.Entry(customer).Reference(c => c.details).Load();
 
-            // Creates the dto to send back as the response (the newly created customers object)
             CustomerDTO customerDto = new CustomerDTO()
                                 {
                                     Id = customer.customer_id,
