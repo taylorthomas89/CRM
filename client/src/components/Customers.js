@@ -17,9 +17,7 @@ class Customers extends Component {
         axios.get("http://localhost:5000/api/customers")
             .then((res) => {
                 console.log(res);
-                this.setState({
-                customers: res.data
-                });
+                this.setState({ customers: res.data });
             });
     }
 
@@ -40,10 +38,7 @@ class Customers extends Component {
         });
 
         if (direction === 'desc') sortedData.reverse();
-        this.setState({
-            customers,
-            sort: { direction }
-        });
+        this.setState({ customers, sort: { direction } });
     }
 
     render() { 
@@ -76,6 +71,9 @@ class Customers extends Component {
                     }
                     </tbody>
                 </table>
+                <div className="">
+                    <button className="btn btn-primary float-right">Add Customer</button>
+                </div>
             </div> 
             
          );
