@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
+import { onSort } from './../helpers/helper-functions';
+
 class Customers extends Component {
     state = {
         customers: [],
@@ -21,26 +23,6 @@ class Customers extends Component {
             });
     }
 
-    onSort(event, sortKey) {
-        const { customers } = this.state;
-        const direction = this.state.sort.direction === 'asc' ? 'desc' : 'asc';
-        const sortedData = customers.sort((a, b) => {
-            if (sortKey === 'name') {
-                const nameA = a.name.toLowerCase();
-                const nameB = b.name.toLowerCase();
-
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0; 
-            } else if (sortKey === 'id') {
-                return a.id - b.id;
-            }
-        });
-
-        if (direction === 'desc') sortedData.reverse();
-        this.setState({ customers, sort: { direction } });
-    }
-
     render() { 
         return (
             <div>
@@ -48,8 +30,8 @@ class Customers extends Component {
                 <table className="table table-striped">
                     <thead>
                         <tr>
-                            <th scope="col" onClick={(e) => this.onSort(e, 'id')}>Id</th>
-                            <th scopr="col" onClick={(e) => this.onSort(e, 'name')}>Name</th>
+                            <th scope="col" onClick={(e) => onSort(e, 'id')}>Id</th>
+                            <th scopr="col" onClick={(e) => onSort(e, 'name')}>Name</th>
                             <th scopr="col">Age</th>
                             <th scopr="col">Phone</th>
                             <th scopr="col">Email</th>
